@@ -42,5 +42,11 @@
             "ZP_LOYALTY_PROGRAM_CSTR_PROGRAM_ID_ZP_LOYALTY_PROGRAM_PROGRAM_ID": true,
             "ZP_LOYALTY_PROGRAM_CSTR_PROGRAM_ID_ZP_LOYALTY_PROGRAM_ENTT_ID": true
         }
+    },
+    "salesrule": {
+        "column": {
+            "is_loyalty_rule": true,
+            "loyalty_program_ids": true
+        }
     }
 }

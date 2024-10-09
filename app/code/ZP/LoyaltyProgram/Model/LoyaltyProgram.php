@@ -6,10 +6,28 @@ namespace ZP\LoyaltyProgram\Model;
 use Magento\Framework\Model\AbstractModel;
 use ZP\LoyaltyProgram\Api\Data\LoyaltyProgramInterface;
 use ZP\LoyaltyProgram\Model\ResourceModel\LoyaltyProgram as LoyaltyProgramResourceModel;
+use Magento\Framework\Model\Context;
+use Magento\Framework\Registry;
+use Magento\Framework\Model\ResourceModel\AbstractResource;
+use Magento\Framework\Data\Collection\AbstractDb;
+use ZP\LoyaltyProgram\Model\Validators\Data\Validator as DataValidator;
 
 class LoyaltyProgram extends AbstractModel implements LoyaltyProgramInterface
 {
     public const ACTIVE = 1;
+    public const NOT_ACTIVE = 0;
+    public const ENTITY = 'LoyaltyProgram';
+
+    public function __construct(
+        private DataValidator $dataValidator,
+        Context $context,
+        Registry $registry,
+        AbstractResource $resource = null,
+        AbstractDb $resourceCollection = null,
+        array $data = []
+    ) {
+        parent::__construct($context, $registry, $resource, $resourceCollection, $data);
+    }
 
     /**
      * Initialize resource model
@@ -21,18 +39,25 @@ class LoyaltyProgram extends AbstractModel implements LoyaltyProgramInterface
     }
 
     /**
-     * @return int
+     * @return int|null
+     * @throws \Exception
      */
-    public function getProgramId(): int
+    public function getProgramId(): ?int
     {
-        return (int)$this->getData(self::PROGRAM_ID);
+        return $this->gettingIntegerData(self::PROGRAM_ID);
     }
 
     /**
-     * @inheritDoc
+     * @param int|string $programId
+     * @return LoyaltyProgramInterface
+     * @throws \Exception
      */
     public function setProgramId(int|string $programId): LoyaltyProgramInterface
     {
+        if (!$this->dataValidator->isDataInteger($programId)) {
+            $this->throwExceptionSetData(self::PROGRAM_ID);
+        }
+
         return $this->setData(self::PROGRAM_ID, (int)$programId);
     }
 
@@ -56,19 +81,30 @@ class LoyaltyProgram extends AbstractModel implements LoyaltyProgramInterface
 
     /**
      * @return bool
+     * @throws \Exception
      */
     public function getIsActive(): bool
     {
-        return (bool)$this->getData(self::IS_ACTIVE);
+        $isActive = $this->getData(self::IS_ACTIVE);
+        if ($isActive != '0' && $isActive != '1') {
+            $this->throwExceptionGetData(self::IS_ACTIVE);
+        }
+
+        return (bool)$isActive;
     }
 
     /**
-     * @param bool $isActive
+     * @param int|string|bool $isActive
      * @return LoyaltyProgramInterface
+     * @throws \Exception
      */
-    public function setIsActive(bool $isActive): LoyaltyProgramInterface
+    public function setIsActive(int|string|bool $isActive): LoyaltyProgramInterface
     {
-        return $this->setData(self::IS_ACTIVE, $isActive);
+        if (is_int($isActive) || is_string($isActive) && ($isActive != '0' && $isActive != '1')) {
+            $this->throwExceptionSetData(self::IS_ACTIVE);
+        }
+
+        return $this->setData(self::IS_ACTIVE, (bool)$isActive);
     }
 
     /**
@@ -107,40 +143,40 @@ class LoyaltyProgram extends AbstractModel implements LoyaltyProgramInterface
 
     /**
      * @return int|null
+     * @throws \Exception
      */
     public function getPreviousProgram(): ?int
     {
-        $programId = $this->getData(self::PREVIOUS_PROGRAM);
-
-        return $programId === null ? null : (int)$programId;
+        return $this->gettingIntegerData(self::PREVIOUS_PROGRAM);
     }
 
     /**
-     * @param int|null $previousProgram
+     * @param int|string|null $previousProgram
      * @return LoyaltyProgramInterface
+     * @throws \Exception
      */
-    public function setPreviousProgram(?int $previousProgram): LoyaltyProgramInterface
+    public function setPreviousProgram(int|string|null $previousProgram): LoyaltyProgramInterface
     {
-        return $this->setData(self::PREVIOUS_PROGRAM, $previousProgram);
+        return $this->settingIntegerData(self::PREVIOUS_PROGRAM, $previousProgram);
     }
 
     /**
      * @return int|null
+     * @throws \Exception
      */
     public function getNextProgram(): ?int
     {
-        $programId = $this->getData(self::NEXT_PROGRAM);
-
-        return $programId === null ? null : (int)$programId;
+        return $this->gettingIntegerData(self::NEXT_PROGRAM);
     }
 
     /**
-     * @param int|null $nextProgram
+     * @param int|string|null $nextProgram
      * @return LoyaltyProgramInterface
+     * @throws \Exception
      */
-    public function setNextProgram(?int $nextProgram): LoyaltyProgramInterface
+    public function setNextProgram(int|string|null $nextProgram): LoyaltyProgramInterface
     {
-        return $this->setData(self::NEXT_PROGRAM, $nextProgram);
+        return $this->settingIntegerData(self::NEXT_PROGRAM, $nextProgram);
     }
 
     /**
@@ -179,68 +215,138 @@ class LoyaltyProgram extends AbstractModel implements LoyaltyProgramInterface
 
     /**
      * @return int|null
+     * @throws \Exception
      */
     public function getWebsiteId(): ?int
     {
-        $websiteId = $this->getData(self::WEBSITE_ID);
-
-        return $websiteId === null ? null : (int)$websiteId;
+        return $this->gettingIntegerData(self::WEBSITE_ID);
     }
 
     /**
-     * @param int|null $websiteId
+     * @param int|string|null $websiteId
      * @return LoyaltyProgramInterface
+     * @throws \Exception
      */
-    public function setWebsiteId(?int $websiteId): LoyaltyProgramInterface
+    public function setWebsiteId(int|string|null $websiteId): LoyaltyProgramInterface
     {
-        return $this->setData(self::WEBSITE_ID, $websiteId);
+        return $this->settingIntegerData(self::WEBSITE_ID, $websiteId);
     }
 
     /**
      * @return array
+     * @throws \Exception
      */
     public function getCustomerGroupIds(): array
     {
-        $groupIds = (array)$this->getData(self::CUSTOMER_GROUP_IDS);
-        if ($groupIds) {
-            $groupIds = explode(',', array_shift($groupIds));
-            foreach ($groupIds as $key => $groupId) {
-                $groupIds[$key] = $groupId;
-            }
-        }
-
-        return $groupIds;
+        return $this->dataValidator->validateMultiselectFieldIntData(
+            $this->getData(self::CUSTOMER_GROUP_IDS),
+            self::CUSTOMER_GROUP_IDS,
+            self::ENTITY
+        );
     }
 
     /**
-     * @param mixed $customerGroupIds
+     * @param null|int|string|array $customerGroupIds
      * @return LoyaltyProgramInterface
+     * @throws \Exception
      */
-    public function setCustomerGroupIds(mixed $customerGroupIds): LoyaltyProgramInterface
+    public function setCustomerGroupIds(null|int|string|array $customerGroupIds): LoyaltyProgramInterface
     {
-        if ($customerGroupIds !== null) {
-            $customerGroupIds = is_array($customerGroupIds) ? implode($customerGroupIds) : (string)$customerGroupIds;
-        }
+        $customerGroupIds = $this->dataValidator->validateMultiselectFieldIntData(
+            $customerGroupIds,
+            self::CUSTOMER_GROUP_IDS,
+            self::ENTITY
+        );
+
+        $customerGroupIds = $customerGroupIds ? implode(',', $customerGroupIds) : null;
 
         return $this->setData(self::CUSTOMER_GROUP_IDS, $customerGroupIds);
     }
 
     /**
      * @return int|null
+     * @throws \Exception
      */
     public function getOrderSubtotal(): ?int
     {
-        $orderSubtotal = $this->getData(self::ORDER_SUBTOTAL);
-
-        return $orderSubtotal === null ? null : (int)$orderSubtotal;
+        return $this->gettingIntegerData(self::ORDER_SUBTOTAL);
     }
 
     /**
-     * @param int|null $orderSubtotal
+     * @param int|string|null $orderSubtotal
      * @return LoyaltyProgramInterface
+     * @throws \Exception
      */
-    public function setOrderSubtotal(?int $orderSubtotal): LoyaltyProgramInterface
+    public function setOrderSubtotal(int|string|null $orderSubtotal): LoyaltyProgramInterface
     {
-        return $this->setData(self::ORDER_SUBTOTAL, $orderSubtotal);
+        return $this->settingIntegerData(self::ORDER_SUBTOTAL, $orderSubtotal);
+    }
+
+    /**
+     * @param string $fieldName
+     * @throws \Exception
+     */
+    private function throwExceptionGetData(string $fieldName): void
+    {
+        $this->throwDataException($fieldName, 'returns');
+    }
+
+    /**
+     * @param string $fieldName
+     * @throws \Exception
+     */
+    private function throwExceptionSetData(string $fieldName): void
+    {
+        $this->throwDataException($fieldName, 'received');
+    }
+
+    /**
+     * @param string $fieldName
+     * @param string $dataAction
+     * @throws \Exception
+     */
+    private function throwDataException(string $fieldName, string $dataAction): void
+    {
+        throw new \Exception(
+            'Loyalty Program Model \'' . $fieldName . '\' field ' . $dataAction . ' wrong value!'
+        );
+    }
+
+    /**
+     * @param string $fieldName
+     * @return int|null
+     * @throws \Exception
+     */
+    private function gettingIntegerData(string $fieldName): ?int
+    {
+        $int = $this->getData($fieldName);
+        if ($int !== null) {
+            if ($this->dataValidator->isDataInteger($int)) {
+                $int = (int)$int;
+            } else {
+                $this->throwExceptionGetData($fieldName);
+            }
+        }
+
+        return $int;
+    }
+
+    /**
+     * @param string $fieldName
+     * @param int|string|null $int
+     * @return LoyaltyProgramInterface
+     * @throws \Exception
+     */
+    private function settingIntegerData(string $fieldName, int|string|null $int): LoyaltyProgramInterface
+    {
+        if ($int !== null) {
+            if (!$this->dataValidator->isDataInteger($int)) {
+                $this->throwExceptionSetData($fieldName);
+            }
+
+            $int = (int)$int;
+        }
+
+        return $this->setData($fieldName, $int);
     }
 }

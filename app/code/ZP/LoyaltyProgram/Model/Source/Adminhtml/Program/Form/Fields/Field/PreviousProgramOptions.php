@@ -10,6 +10,7 @@ class PreviousProgramOptions extends ReferenceProgramOptions
     /**
      * @param LoyaltyProgram $program
      * @return int|null
+     * @throws \Exception
      */
     protected function getReferenceProgramId(LoyaltyProgram $program): ?int
     {

@@ -10,19 +10,26 @@ use ZP\LoyaltyProgram\Model\LoyaltyProgram;
 use ZP\LoyaltyProgram\Model\ResourceModel\LoyaltyProgram\Collection;
 use ZP\LoyaltyProgram\Model\ResourceModel\LoyaltyProgram\CollectionFactory;
 use ZP\LoyaltyProgram\Setup\Patch\Data\AddBasicPrograms as BasicProgramsConfig;
+use ZP\LoyaltyProgram\Api\Model\Validators\Controller\Adminhtml\Program\ValidatorInterface;
 
 abstract class ReferenceProgramOptions implements OptionSourceInterface
 {
     public const PLEASE_OPTION = 'please_option';
     public const REMOVE_OPTION = 'remove_option';
+    public const EMPTY_OPTION = 'empty_option';
 
     protected ?int $currentProgramId = null;
 
     public function __construct(
         private CollectionFactory $collectionFactory,
-        private RequestInterface $request
+        private RequestInterface $request,
+        protected ValidatorInterface $dataValidator
     ) {}
 
+    /**
+     * @return array
+     * @throws \Exception
+     */
     public function toOptionArray()
     {
         return $this->getData();
@@ -30,28 +37,30 @@ abstract class ReferenceProgramOptions implements OptionSourceInterface
 
     private function getProgramCollection(array $programIds = []): array
     {
-        $ninProgramIds = [
-            'nin' => [BasicProgramsConfig::PROGRAM_MIN, BasicProgramsConfig::PROGRAM_MAX]
-        ];
-        if ($programIds) {
-            $ninProgramIds['nin'] = array_merge($ninProgramIds['nin'], $programIds);
-        }
-
         /** @var Collection $collection */
-        $collection = $this->collectionFactory->create();
-        $collection->addFieldToFilter(
-            LoyaltyProgram::PROGRAM_ID,
-            $ninProgramIds
-        );
+        $collection = $this->collectionFactory->create()->excludeBasicPrograms();
+        if ($programIds) {
+            $collection->addFieldToFilter(LoyaltyProgram::PROGRAM_ID, ['nin' => $programIds]);
+        }
 
         return $collection->getItems();
     }
 
+    /**
+     * @return array
+     * @throws \Exception
+     */
     protected function getData(): array
     {
         $data = [];
         $programs = $this->getProgramCollection();
-        if ($this->getProgramId() === null || $this->isBasicProgram($this->currentProgramId)) {
+        if (!$programs) {
+            $data[] = $this->getDefaultOption(self::EMPTY_OPTION);
+
+            return $data;
+        }
+
+        if ($this->getProgramId() === null || $this->dataValidator->isBasicProgram($this->currentProgramId)) {
             $data[] = $this->getDefaultOption(self::PLEASE_OPTION);
 
             return $this->getOptionsData($data, $programs);
@@ -60,7 +69,7 @@ abstract class ReferenceProgramOptions implements OptionSourceInterface
         /** @var LoyaltyProgram $currentProgram */
         $currentProgram = $programs[$this->currentProgramId];
         $referenceProgramId = $this->getReferenceProgramId($currentProgram);
-        if ($referenceProgramId === null || $this->isBasicProgram($referenceProgramId)) {
+        if ($referenceProgramId === null || $this->dataValidator->isBasicProgram($referenceProgramId)) {
             $data[] = $this->getDefaultOption(self::PLEASE_OPTION);
 
             return $this->getOptionsData($data, $this->getProgramCollection([$this->currentProgramId]));
@@ -84,25 +93,28 @@ abstract class ReferenceProgramOptions implements OptionSourceInterface
         return $this->currentProgramId;
     }
 
+    /**
+     * @param string $type
+     * @return array
+     * @throws \Exception
+     */
     protected function getDefaultOption(string $type): array
     {
-        $label = '';
-        switch ($type) {
-            case self::REMOVE_OPTION :
-                $label = '-- Remove Program --';
-                break;
-            case self::PLEASE_OPTION :
-                $label = '-- Please Select --';
+        $label = match ($type) {
+            self::REMOVE_OPTION => '-- Remove Program --',
+            self::PLEASE_OPTION => '-- Please Select --',
+            self::EMPTY_OPTION => '--Nothing To Select',
+            default => throw new \Exception('Unknown option type : ' . '\'' . $type . '\'!')
+        };
 
-        }
-
-        return ['label' => __($label), 'value' => '0'];
+        return ['label' => __($label), 'value' => ''];
     }
 
     /**
      * @param array $dataToReturn
-     * @param LoyaltyProgram[] $programsData
+     * @param array $programsData
      * @return array
+     * @throws \Exception
      */
     protected function getOptionsData(array $dataToReturn, array $programsData): array
     {
@@ -112,11 +124,6 @@ abstract class ReferenceProgramOptions implements OptionSourceInterface
         }
 
         return $dataToReturn;
-    }
-
-    protected function isBasicProgram(int $programId): bool
-    {
-        return $programId === BasicProgramsConfig::PROGRAM_MIN || $programId === BasicProgramsConfig::PROGRAM_MAX;
     }
 
     /**

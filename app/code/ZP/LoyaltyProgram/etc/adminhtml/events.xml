@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
+    <event name="salesrule_rule_save_before">
+        <observer
+            name="zp_loyalty_program_prepare_program_ids_before_save"
+            instance="ZP\LoyaltyProgram\Observer\SalesRule\Controller\Adminhtml\Promo\Quote\PrepareLoyaltyProgramIdsBeforeSave"
+        />
+    </event>
+</config>

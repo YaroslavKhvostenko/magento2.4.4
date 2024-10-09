@@ -4,6 +4,7 @@
         <loyalty_program>
             <general>
                 <is_enabled>1</is_enabled>
+                <apply_subtotal_changes_after_invoice>0</apply_subtotal_changes_after_invoice>
             </general>
         </loyalty_program>
     </default>

@@ -10,14 +10,14 @@ interface LoyaltyProgramSearchResultsInterface extends SearchResultsInterface
     /**
      * Get posts
      *
-     * @return \ZP\LoyaltyProgram\Api\Data\LoyaltyProgramInterface[]
+     * @return LoyaltyProgramInterface[]
      */
     public function getItems();
 
     /**
      * Set posts
      *
-     * @param \ZP\LoyaltyProgram\Api\Data\LoyaltyProgramInterface[] $items
+     * @param LoyaltyProgramInterface[] $items
      * @return $this
      */
     public function setItems(array $items);

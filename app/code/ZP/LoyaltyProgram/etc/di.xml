@@ -2,8 +2,22 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <preference for="ZP\LoyaltyProgram\Api\Data\LoyaltyProgramInterface" type="ZP\LoyaltyProgram\Model\LoyaltyProgram"/>
-    <preference for="ZP\LoyaltyProgram\Api\LoyaltyProgramRepositoryInterface" type="ZP\LoyaltyProgram\Model\LoyaltyProgramRepository"/>
-    <preference for="ZP\LoyaltyProgram\Api\Data\LoyaltyProgramSearchResultsInterface" type="ZP\LoyaltyProgram\Model\LoyaltyProgramSearchResults"/>
+    <preference
+        for="ZP\LoyaltyProgram\Api\LoyaltyProgramRepositoryInterface"
+        type="ZP\LoyaltyProgram\Model\LoyaltyProgramRepository"
+    />
+    <preference
+        for="ZP\LoyaltyProgram\Api\LoyaltyProgramManagementInterface"
+        type="ZP\LoyaltyProgram\Model\Customer\LoyaltyProgramManagement"
+    />
+    <preference
+        for="ZP\LoyaltyProgram\Api\Data\LoyaltyProgramSearchResultsInterface"
+        type="ZP\LoyaltyProgram\Model\LoyaltyProgramSearchResults"
+    />
+    <preference
+        for="ZP\LoyaltyProgram\Api\Model\Validators\Controller\Adminhtml\Program\ValidatorInterface"
+        type="ZP\LoyaltyProgram\Model\Validators\Controller\Adminhtml\Program\Validator"
+    />
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
         <arguments>
             <argument name="collections" xsi:type="array">
@@ -17,6 +31,27 @@
             <argument name="eventPrefix" xsi:type="string">loyalty_program_grid_collection</argument>
             <argument name="eventObject" xsi:type="string">program_grid_collection</argument>
             <argument name="resourceModel" xsi:type="string">ZP\LoyaltyProgram\Model\ResourceModel\LoyaltyProgram</argument>
+        </arguments>
+    </type>
+    <type name="Magento\SalesRule\Model\Utility">
+        <plugin name="zp_loyalty_program_sales_rule_utility_plugin" type="ZP\LoyaltyProgram\Plugin\SalesRule\Model\UtilityPlugin"/>
+    </type>
+    <type name="Magento\Customer\Api\CustomerRepositoryInterface">
+        <plugin name="zp_loyalty_program_customer_repository_plugin" type="ZP\LoyaltyProgram\Plugin\Customer\Model\CustomerRepositoryPlugin"/>
+    </type>
+    <type name="Magento\SalesRule\Model\Validator">
+        <plugin name="zp_loyalty_program_sales_rule_validator_plugin" type="ZP\LoyaltyProgram\Plugin\SalesRule\Model\ValidatorPlugin"/>
+    </type>
+    <type name="Magento\Framework\Console\CommandListInterface">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="zp_loyalty_program_assign_programs_to_customers" xsi:type="object">ZP\LoyaltyProgram\Console\Command\Customer\AssignLoyaltyProgram</item>
+            </argument>
+        </arguments>
+    </type>
+    <type name="ZP\LoyaltyProgram\Console\Command\Customer\AssignLoyaltyProgram">
+        <arguments>
+            <argument name="name" xsi:type="string">assign:customer:programs</argument>
         </arguments>
     </type>
 </config>

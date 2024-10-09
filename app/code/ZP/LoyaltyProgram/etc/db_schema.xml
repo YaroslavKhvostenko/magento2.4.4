@@ -32,20 +32,20 @@
         <constraint xsi:type="foreign"
                     referenceId="ZP_LOYALTY_PROGRAM_TABLE_PREVIOUS_PROGRAM_COLUMN_ZP_LOYALTY_PROGRAM_TABLE_PROGRAM_ID_COLUMN"
                     table="zp_loyalty_program" column="previous_program" referenceTable="zp_loyalty_program"
-                    referenceColumn="program_id" onDelete="CASCADE"/>
+                    referenceColumn="program_id" onDelete="SET NULL"/>
         <constraint xsi:type="foreign"
                     referenceId="ZP_LOYALTY_PROGRAM_TABLE_NEXT_PROGRAM_COLUMN_ZP_LOYALTY_PROGRAM_TABLE_PROGRAM_ID_COLUMN"
                     table="zp_loyalty_program" column="next_program" referenceTable="zp_loyalty_program"
-                    referenceColumn="program_id" onDelete="CASCADE"/>
+                    referenceColumn="program_id" onDelete="SET NULL"/>
         <constraint xsi:type="foreign"
                     referenceId="ZP_LOYALTY_PROGRAM_TABLE_WEBSITE_ID_COLUMN_STORE_WEBSITE_TABLE_WEBSITE_ID_COLUMN"
                     table="zp_loyalty_program" column="website_id" referenceTable="store_website"
-                    referenceColumn="website_id" onDelete="CASCADE"/>
+                    referenceColumn="website_id" onDelete="SET NULL"/>
     </table>
     <table name="zp_loyalty_program_customer" resource="default" engine="innodb" comment="Zp Loyalty Program Customer Table">
         <column xsi:type="int" name="customer_id" unsigned="true" nullable="false" identity="false"
                 comment="Customer ID"/>
-        <column xsi:type="int" name="program_id" unsigned="false" nullable="false" identity="false"
+        <column xsi:type="int" name="program_id" nullable="false" identity="false"
                 comment="Program ID"/>
         <column xsi:type="varchar" name="customer_email" nullable="true" length="255"
                 comment="Customer Email"/>
@@ -63,5 +63,9 @@
         <index referenceId="ZP_LOYALTY_PROGRAM_CUSTOMER_PROGRAM_ID" indexType="btree">
             <column name="program_id"/>
         </index>
+    </table>
+    <table name="salesrule">
+        <column xsi:type="smallint" name="is_loyalty_rule" nullable="false" default="0" comment="Is loyalty rule"/>
+        <column xsi:type="text" name="loyalty_program_ids" nullable="true" comment="Loyalty Programs"/>
     </table>
 </schema>

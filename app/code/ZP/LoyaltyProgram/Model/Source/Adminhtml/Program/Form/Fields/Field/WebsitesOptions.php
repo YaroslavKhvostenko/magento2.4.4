@@ -22,7 +22,7 @@ class WebsitesOptions implements OptionSourceInterface
 
     protected function getData(): array
     {
-        $data[] = ['label' => __('-- Please Select --'), 'value' => '0'];
+        $data[] = ['label' => __('-- Please Select --'), 'value' => ''];
         /** @var Website $website */
         foreach ($this->storeManager->getWebsites() as $website) {
             $data[] = ['label' => __($website->getName()), 'value' => $website->getId()];

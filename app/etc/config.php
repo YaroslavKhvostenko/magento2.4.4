@@ -256,6 +256,9 @@ return [
         'PayPal_Braintree' => 1,
         'PayPal_BraintreeGraphQl' => 1,
         'Temando_ShippingRemover' => 1,
-        'VConnect_Blog' => 1
+        'VConnect_Blog' => 1,
+        'VConnect_Erp' => 1,
+        'VConnect_OrderVolume' => 1,
+        'ZP_LoyaltyProgram' => 1
     ]
 ];

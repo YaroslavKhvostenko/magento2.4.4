@@ -22,13 +22,15 @@ interface LoyaltyProgramInterface
     public const IS_PROGRAM_MAXIMUM = 'is_program_maximum';
 
     /**
-     * @return int
+     * @return int|null
+     * @throws \Exception
      */
-    public function getProgramId(): int;
+    public function getProgramId(): ?int;
 
     /**
      * @param int|string $programId
-     * @return $this
+     * @return LoyaltyProgramInterface
+     * @throws \Exception
      */
     public function setProgramId(int|string $programId): self;
 
@@ -45,12 +47,14 @@ interface LoyaltyProgramInterface
 
     /**
      * @return bool
+     * @throws \Exception
      */
     public function getIsActive(): bool;
 
     /**
-     * @param bool $isActive
-     * @return $this
+     * @param int|string|bool $isActive
+     * @return LoyaltyProgramInterface
+     * @throws \Exception
      */
     public function setIsActive(bool $isActive): self;
 
@@ -78,25 +82,29 @@ interface LoyaltyProgramInterface
 
     /**
      * @return int|null
+     * @throws \Exception
      */
     public function getPreviousProgram(): ?int;
 
     /**
-     * @param int $previousProgram
-     * @return $this
+     * @param int|string|null $previousProgram
+     * @return LoyaltyProgramInterface
+     * @throws \Exception
      */
-    public function setPreviousProgram(int $previousProgram): self;
+    public function setPreviousProgram(int|string|null $previousProgram): self;
 
     /**
      * @return int|null
+     * @throws \Exception
      */
     public function getNextProgram(): ?int;
 
     /**
-     * @param int $nextProgram
-     * @return $this
+     * @param int|string|null $nextProgram
+     * @return LoyaltyProgramInterface
+     * @throws \Exception
      */
-    public function setNextProgram(int $nextProgram): self;
+    public function setNextProgram(int|string|null $nextProgram): self;
 
     /**
      * @return string|null
@@ -122,34 +130,40 @@ interface LoyaltyProgramInterface
 
     /**
      * @return int|null
+     * @throws \Exception
      */
     public function getWebsiteId(): ?int;
 
     /**
-     * @param int|null $websiteId
-     * @return $this
+     * @param int|string|null $websiteId
+     * @return LoyaltyProgramInterface
+     * @throws \Exception
      */
-    public function setWebsiteId(?int $websiteId): self;
+    public function setWebsiteId(int|string|null $websiteId): self;
 
     /**
      * @return array
+     * @throws \Exception
      */
     public function getCustomerGroupIds(): array;
 
     /**
-     * @param $customerGroupIds mixed
-     * @return $this
+     * @param null|int|string|array $customerGroupIds
+     * @return LoyaltyProgramInterface
+     * @throws \Exception
      */
-    public function setCustomerGroupIds(mixed $customerGroupIds): self;
+    public function setCustomerGroupIds(null|int|string|array $customerGroupIds): self;
 
     /**
      * @return int|null
+     * @throws \Exception
      */
     public function getOrderSubtotal(): ?int;
 
     /**
-     * @param int|null $orderSubtotal
-     * @return $this
+     * @param int|string|null $orderSubtotal
+     * @return LoyaltyProgramInterface
+     * @throws \Exception
      */
-    public function setOrderSubtotal(?int $orderSubtotal): self;
+    public function setOrderSubtotal(int|string|null $orderSubtotal): self;
 }

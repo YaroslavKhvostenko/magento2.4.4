@@ -31,4 +31,10 @@
             <resource ref="ZP_LoyaltyProgram::webapi"/>
         </resources>
     </route>
+    <route url="/V1/loyalty_program/manage_customer_program" method="POST">
+        <service class="ZP\LoyaltyProgram\Api\LoyaltyProgramManagementInterface" method="assignLoyaltyProgram"/>
+        <resources>
+            <resource ref="ZP_LoyaltyProgram::webapi"/>
+        </resources>
+    </route>
 </routes>

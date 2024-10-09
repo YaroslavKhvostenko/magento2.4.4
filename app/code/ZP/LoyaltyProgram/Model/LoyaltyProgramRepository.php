@@ -12,6 +12,7 @@ use ZP\LoyaltyProgram\Api\Data\LoyaltyProgramInterface;
 use ZP\LoyaltyProgram\Api\Data\LoyaltyProgramInterfaceFactory;
 use ZP\LoyaltyProgram\Api\Data\LoyaltyProgramSearchResultsInterface;
 use ZP\LoyaltyProgram\Model\ResourceModel\LoyaltyProgram as LoyaltyProgramResource;
+use ZP\LoyaltyProgram\Model\ResourceModel\LoyaltyProgram\Collection;
 use ZP\LoyaltyProgram\Model\ResourceModel\LoyaltyProgram\CollectionFactory as LoyaltyProgramCollectionFactory;
 use ZP\LoyaltyProgram\Api\Data\LoyaltyProgramSearchResultsInterfaceFactory;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface;
@@ -46,12 +47,13 @@ class LoyaltyProgramRepository implements LoyaltyProgramRepositoryInterface
      * @param int $programId
      * @return LoyaltyProgramInterface
      * @throws NoSuchEntityException
+     * @throws \Exception
      */
     public function get(int $programId): LoyaltyProgramInterface
     {
         $loyaltyProgram = $this->loyaltyProgramFactory->create();
         $this->loyaltyProgramResource->load($loyaltyProgram, $programId, LoyaltyProgramInterface::PROGRAM_ID);
-        if (!$loyaltyProgram->getId()) {
+        if (!$loyaltyProgram->getProgramId()) {
             throw new NoSuchEntityException(__(
                 "LoyaltyProgram entity with the \"program_id\" doesn't exist.", $programId
             ));
@@ -93,7 +95,7 @@ class LoyaltyProgramRepository implements LoyaltyProgramRepositoryInterface
      */
     public function getList(SearchCriteriaInterface $searchCriteria): LoyaltyProgramSearchResultsInterface
     {
-        /** @var \ZP\LoyaltyProgram\Model\ResourceModel\LoyaltyProgram\Collection $collection */
+        /** @var Collection $collection */
         $collection = $this->loyaltyProgramCollectionFactory->create();
 
         /** @var LoyaltyProgramSearchResultsInterface $searchResult */

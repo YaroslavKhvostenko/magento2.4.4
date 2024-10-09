@@ -21,6 +21,8 @@ interface LoyaltyProgramRepositoryInterface
     /**
      * @param int $programId
      * @return LoyaltyProgramInterface
+     * @throws NoSuchEntityException
+     * @throws \Exception
      */
     public function get(int $programId): LoyaltyProgramInterface;
 

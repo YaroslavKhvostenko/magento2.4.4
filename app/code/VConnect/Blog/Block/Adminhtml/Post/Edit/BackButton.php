@@ -14,9 +14,9 @@ class BackButton implements ButtonProviderInterface
     /**
      * @param Context $context
      */
-    public function __construct(protected Context $context)
-    {
-    }
+        public function __construct(protected Context $context)
+        {
+        }
 
     /**
      * @return array

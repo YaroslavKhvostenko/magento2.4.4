@@ -6,6 +6,7 @@ namespace ZP\LoyaltyProgram\Model\LoyaltyProgram;
 use Magento\Ui\DataProvider\Modifier\PoolInterface;
 use Magento\Ui\DataProvider\ModifierPoolDataProvider;
 use ZP\LoyaltyProgram\Model\LoyaltyProgram;
+use ZP\LoyaltyProgram\Model\Prepare\Data\DataPreparer;
 use ZP\LoyaltyProgram\Model\ResourceModel\LoyaltyProgram\CollectionFactory;
 use ZP\LoyaltyProgram\Setup\Patch\Data\AddBasicPrograms as BasicProgramsConfig;
 
@@ -15,19 +16,21 @@ class DataProvider extends ModifierPoolDataProvider
 
     /**
      * DataProvider constructor.
-     * @param $name
-     * @param $primaryFieldName
-     * @param $requestFieldName
+     * @param string $name
+     * @param string $primaryFieldName
+     * @param string $requestFieldName
      * @param CollectionFactory $collectionFactory
+     * @param DataPreparer $prepareData
      * @param array $meta
      * @param array $data
      * @param PoolInterface|null $pool
      */
     public function __construct(
-        $name,
-        $primaryFieldName,
-        $requestFieldName,
+        string $name,
+        string $primaryFieldName,
+        string $requestFieldName,
         private CollectionFactory $collectionFactory,
+        private DataPreparer $prepareData,
         array $meta = [],
         array $data = [],
         PoolInterface $pool = null
@@ -37,9 +40,8 @@ class DataProvider extends ModifierPoolDataProvider
     }
 
     /**
-     * Get data
-     *
      * @return array|null
+     * @throws \Exception
      */
     public function getData(): ?array
     {
@@ -53,20 +55,21 @@ class DataProvider extends ModifierPoolDataProvider
         $this->setProgramMinMaxStatus($item, LoyaltyProgram::NEXT_PROGRAM);
 
         if ($item->getWebsiteId() === null) {
-            $item->setWebsiteId(0);
+            $item->setData(LoyaltyProgram::WEBSITE_ID, '');
         }
 
-        $customerGroupIds = $item->getCustomerGroupIds();
-        foreach ($customerGroupIds as $key => $customerGroupId) {
-            $customerGroupIds[$key] = $customerGroupId;
-        }
+        $customerGroupIds = $this->prepareData->arrayValuesToString($item->getCustomerGroupIds());
         $item->setData(LoyaltyProgram::CUSTOMER_GROUP_IDS, $customerGroupIds);
-
         $this->loadedData[$item->getId()] = $item->getData();
 
         return $this->loadedData;
     }
 
+    /**
+     * @param LoyaltyProgram $item
+     * @param string $referenceDirection
+     * @throws \Exception
+     */
     private function setProgramMinMaxStatus(LoyaltyProgram $item, string $referenceDirection): void
     {
         $referenceProgramId = '';

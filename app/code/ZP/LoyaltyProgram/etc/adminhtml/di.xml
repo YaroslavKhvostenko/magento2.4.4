@@ -1,11 +1,18 @@
 <?xml version="1.0" ?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <preference
+        for="ZP\LoyaltyProgram\Api\Model\Validators\Controller\Adminhtml\Program\MassAction\ValidatorInterface"
+        type="ZP\LoyaltyProgram\Model\Validators\Controller\Adminhtml\Program\MassAction\Validator"
+    />
     <type name="ZP\LoyaltyProgram\Ui\DataProvider\LoyaltyProgram\ListingDataProvider">
         <arguments>
             <argument name="additionalFilterPool" xsi:type="array">
                 <item name="fulltext" xsi:type="object">ZP\LoyaltyProgram\Ui\Component\LoyaltyProgram\FulltextFilter</item>
             </argument>
         </arguments>
+    </type>
+    <type name="Magento\SalesRule\Model\Rule\DataProvider">
+        <plugin name="zp_loyalty_program_sales_rule_data_provider_plugin" type="ZP\LoyaltyProgram\Plugin\SalesRule\Model\Rule\DataProviderPlugin"/>
     </type>
 </config>

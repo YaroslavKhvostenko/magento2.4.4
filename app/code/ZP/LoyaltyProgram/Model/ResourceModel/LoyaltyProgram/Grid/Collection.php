@@ -16,18 +16,18 @@ use Magento\Framework\EntityManager\MetadataPool;
 use Magento\Framework\Model\ResourceModel\Db\AbstractDb;
 use Magento\Framework\View\Element\UiComponent\DataProvider\Document;
 use Magento\Framework\Api\SearchCriteriaInterface;
-use ZP\LoyaltyProgram\Setup\Patch\Data\AddBasicPrograms as BasicProgramsConfig;
-
+use ZP\LoyaltyProgram\Model\Configs\Customer\Program\Config as CustomerProgramConfig;
 
 class Collection extends LoyaltyProgramCollection implements SearchResultInterface
 {
+    public const MAIN_TABLE_ALIAS = 'main_table';
+    public const NUMBER_OF_CUSTOMERS_IN_PROGRAM = 'number_of_customers_in_program';
+
     /**
      * @var AggregationInterface
      */
     protected AggregationInterface $aggregations;
-
     private bool $customersInProgramFilterStatus = false;
-
     private array $customersInProgramFilter = [];
 
     /**
@@ -148,20 +148,21 @@ class Collection extends LoyaltyProgramCollection implements SearchResultInterfa
 
     protected function _beforeLoad(): self
     {
-        $this->addFieldToFilter(
-            'main_table.' . LoyaltyProgram::PROGRAM_ID,
-            [
-                'nin' => [BasicProgramsConfig::PROGRAM_MIN, BasicProgramsConfig::PROGRAM_MAX]
-            ]
-        );
+        $this->excludeBasicPrograms(self::MAIN_TABLE_ALIAS);
 
+        $condition = self::MAIN_TABLE_ALIAS . '.' . LoyaltyProgram::PROGRAM_ID . ' = ' .
+            CustomerProgramConfig::CUSTOMER_PROGRAM_TABLE . '.' . CustomerProgramConfig::PROGRAM_ID;
 
+        $column = 'COUNT(' . CustomerProgramConfig::CUSTOMER_PROGRAM_TABLE . '.' . CustomerProgramConfig::CUSTOMER_ID . ')';
+
+        $cols = [self::NUMBER_OF_CUSTOMERS_IN_PROGRAM => $column];
         $this->getSelect()->joinLeft(
-            'zp_loyalty_program_customer',
-            'main_table.program_id= ' . 'zp_loyalty_program_customer.program_id',
-            ['number_of_customers_in_program' => 'COUNT(zp_loyalty_program_customer.customer_id)']
+            CustomerProgramConfig::CUSTOMER_PROGRAM_TABLE,
+            $condition,
+            $cols
         );
-        $this->getSelect()->group('main_table.program_id');
+
+        $this->getSelect()->group(self::MAIN_TABLE_ALIAS . '.' . LoyaltyProgram::PROGRAM_ID);
         if ($this->customersInProgramFilterStatus) {
             if (count($this->customersInProgramFilter) === 2) {
                 $havingSql = 'BETWEEN ' . array_shift($this->customersInProgramFilter) .
@@ -171,8 +172,11 @@ class Collection extends LoyaltyProgramCollection implements SearchResultInterfa
                 $value = $this->customersInProgramFilter[$operator];
                 $havingSql = $operator . ' ' . $value;
             }
-
-            $this->getSelect()->having('COUNT(zp_loyalty_program_customer.customer_id) ' . $havingSql);
+            $this->getSelect()->having(
+                'COUNT(' .
+                CustomerProgramConfig::CUSTOMER_PROGRAM_TABLE . '.' . CustomerProgramConfig::CUSTOMER_ID .
+                ') ' . $havingSql
+            );
         }
 
         return parent::_beforeLoad();
@@ -180,7 +184,7 @@ class Collection extends LoyaltyProgramCollection implements SearchResultInterfa
 
     public function addFieldToFilter($field, $condition = null)
     {
-        if ($field === 'number_of_customers_in_program') {
+        if ($field === self::NUMBER_OF_CUSTOMERS_IN_PROGRAM) {
             $this->customersInProgramFilterStatus = true;
             $conditionOperator = array_key_first($condition);
             if ($conditionOperator === 'gteq') {

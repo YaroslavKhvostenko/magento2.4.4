@@ -257,6 +257,9 @@
                 </item>
             </argument>
             <settings>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
                 <dataType>number</dataType>
                 <label translate="true">Website</label>
                 <dataScope>website_id</dataScope>
@@ -276,6 +279,9 @@
                 </item>
             </argument>
             <settings>
+                <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
+                </validation>
                 <dataType>number</dataType>
                 <label translate="true">Customer Groups</label>
                 <dataScope>customer_group_ids</dataScope>
@@ -296,6 +302,7 @@
             </argument>
             <settings>
                 <validation>
+                    <rule name="required-entry" xsi:type="boolean">true</rule>
                     <rule name="validate-digits" xsi:type="boolean">true</rule>
                 </validation>
                 <dataType>text</dataType>
